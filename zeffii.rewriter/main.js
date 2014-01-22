@@ -96,13 +96,15 @@ define(function (require, exports, module) {
             var num_iterations = parts[1];
             console.log(varname, num_iterations);
 
-            var line1 = "for (var {varname} = 0; {varname} < {num_iterations}; {varname}+=1){\n",
+            var line1 = "for (var {varname} = 0; {varname} < {num_iterations}; {varname}+= 1) {\n",
                 line2 = "    {varname};\n",
                 line3 = "}";
 
             var input_rewritten = line1 + line2 + line3;
             var a = input_rewritten.format({varname: varname, num_iterations: num_iterations});
-            currentDoc.replaceRange(a, pos);
+			var extent = pos.ch;
+            pos.ch = 0;
+            currentDoc.replaceRange(a, pos, {line: pos.line, ch: extent});
         }
 
     }
