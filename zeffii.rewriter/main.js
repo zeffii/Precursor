@@ -26,7 +26,7 @@
 define(function (require, exports, module) {
     "use strict";
 
-    console.log("monkies!");
+    console.log("Precursor Active!");
 
     // Brackets modules
     var EditorManager     = brackets.getModule("editor/EditorManager"),
@@ -40,16 +40,14 @@ define(function (require, exports, module) {
     if (!String.prototype.format) {
         String.prototype.format = function () {
             var str = this.toString();
-            console.log(arguments[0]);
             if (!arguments.length) {
                 return str;
             }
 
-            //var args = typeof arguments[0];
-            var args = arguments[0];
-            var arg;
+            var args = arguments[0],
+            	arg;
+            
             for (arg in args) {
-                // prop is not inherited
                 if (args.hasOwnProperty(arg)) {
                     str = str.replace(new RegExp("\\{" + arg + "\\}", "gi"), args[arg]);
                 }
@@ -57,10 +55,6 @@ define(function (require, exports, module) {
             return str;
         };
     }
-
-
-
-    console.log("monkies! 2");
 
     function detectIndentationAndCommands(currentLine) {
         // trim ends to help figure out the indentation level
@@ -82,28 +76,26 @@ define(function (require, exports, module) {
         // dummy function implementation for testing
         return "iter..integer";
     }
-    
 
     function performRewrite(pType, pObj, pos) {
-        var currentDoc = DocumentManager.getCurrentDocument();
-        var parts;
-
-        console.log("arrives here", pObj);
+        var currentDoc = DocumentManager.getCurrentDocument(),
+            ind = pObj.indent,
+            parts;
 
         if (pType === "iter..integer") {
             parts = pObj.command.split("..");
             var varname = parts[0];
             var num_iterations = parts[1];
-            console.log(varname, num_iterations);
 
-            var line1 = "for (var {varname} = 0; {varname} < {num_iterations}; {varname}+= 1) {\n",
+            var line1 = "for (var {varname} = 0; {varname} < {num_iterations}; {varname} += 1) {\n",
                 line2 = "    {varname};\n",
                 line3 = "}";
 
-            var input_rewritten = line1 + line2 + line3;
+            var input_rewritten = ind + line1 + ind + line2 + ind + line3;
             var a = input_rewritten.format({varname: varname, num_iterations: num_iterations});
 			var extent = pos.ch;
             pos.ch = 0;
+            
             currentDoc.replaceRange(a, pos, {line: pos.line, ch: extent});
         }
 
