@@ -25,8 +25,9 @@
 
 define(function (require, exports, module) {
     "use strict";
-    
+
     console.log("monkies!");
+
     // Brackets modules
     var EditorManager     = brackets.getModule("editor/EditorManager"),
         InlineTextEditor  = brackets.getModule("editor/InlineTextEditor").InlineTextEditor,
@@ -34,6 +35,32 @@ define(function (require, exports, module) {
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         DocumentManager   = brackets.getModule("document/DocumentManager"),
         indent_default    = "    ";
+
+    // necessary for convenient rewriting.
+    if (!String.prototype.format) {
+        String.prototype.format = function () {
+            var str = this.toString();
+            console.log(arguments[0]);
+            if (!arguments.length) {
+                return str;
+            }
+
+            //var args = typeof arguments[0];
+            var args = arguments[0];
+            var arg;
+            for (arg in args) {
+                // prop is not inherited
+                if (args.hasOwnProperty(arg)) {
+                    str = str.replace(new RegExp("\\{" + arg + "\\}", "gi"), args[arg]);
+                }
+            }
+            return str;
+        };
+    }
+
+
+
+    console.log("monkies! 2");
 
     function detectIndentationAndCommands(currentLine) {
         // trim ends to help figure out the indentation level
@@ -52,12 +79,37 @@ define(function (require, exports, module) {
     }
 
     function detectPrecursor(pObj) {
+        // dummy function implementation for testing
+        return "iter..integer";
+    }
+    
+
+    function performRewrite(pType, pObj, pos) {
+        var currentDoc = DocumentManager.getCurrentDocument();
+        var parts;
+
+        console.log("arrives here", pObj);
+
+        if (pType === "iter..integer") {
+            parts = pObj.command.split("..");
+            var varname = parts[0];
+            var num_iterations = parts[1];
+            console.log(varname, num_iterations);
+
+            var line1 = "for (var {varname} = 0; {varname} < {num_iterations}; {varname}+=1){\n",
+                line2 = "    {varname};\n",
+                line3 = "}";
+
+            var input_rewritten = line1 + line2 + line3;
+            var a = input_rewritten.format({varname: varname, num_iterations: num_iterations});
+            currentDoc.replaceRange(a, pos);
+        }
 
     }
 
     function testLine() {
-        var currentDoc = DocumentManager.getCurrentDocument();
         var editor = EditorManager.getActiveEditor();
+
         if (!editor) {
             return;
         }
@@ -75,7 +127,9 @@ define(function (require, exports, module) {
 
         var precursorObj = detectIndentationAndCommands(lineText);
         var precursorType = detectPrecursor(precursorObj);
-        //currentDoc.replaceRange(replacement_text, pos);
+        if (precursorType !== false) {
+            performRewrite(precursorType, precursorObj, pos);
+        }
     }
     
     // Keyboard shortcuts to "nudge" value up/down
