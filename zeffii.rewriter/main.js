@@ -74,7 +74,7 @@ define(function (require, exports, module) {
 
     function detectPrecursor(pObj) {
         // dummy function implementation for testing
-        return "iter..integer";
+        return "iter:integer";
     }
 
     function performRewrite(pType, pObj, pos) {
@@ -82,8 +82,8 @@ define(function (require, exports, module) {
             ind = pObj.indent,
             parts;
 
-        if (pType === "iter..integer") {
-            parts = pObj.command.split("..");
+        if (pType === "iter:integer") {
+            parts = pObj.command.split(":");
             var varname = parts[0];
             var num_iterations = parts[1];
 
