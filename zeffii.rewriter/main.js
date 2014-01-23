@@ -38,15 +38,13 @@ define(function (require, exports, module) {
 
     // necessary for convenient rewriting.
     if (!String.prototype.format) {
-        String.prototype.format = function () {
+        String.prototype.format = function (args) {
             var str = this.toString();
             if (!arguments.length) {
                 return str;
             }
 
-            var args = arguments[0],
-            	arg;
-            
+            var arg;
             for (arg in args) {
                 if (args.hasOwnProperty(arg)) {
                     str = str.replace(new RegExp("\\{" + arg + "\\}", "gi"), args[arg]);
@@ -74,13 +72,22 @@ define(function (require, exports, module) {
 
     function detectPrecursor(pObj) {
         // dummy function implementation for testing
+        var cmds = pObj.command;
+        
         return "iter:integer";
     }
 
     function performRewrite(pType, pObj, pos) {
+        /*  this function should only ever be called with a recognized pType
+         *  so directly mapping pType to actions/rewrites can occur without
+         *  much error checking.
+         */
+
         var currentDoc = DocumentManager.getCurrentDocument(),
             ind = pObj.indent,
-            parts;
+            parts,
+            sanitized_parts = {},
+            input_template;
 
         if (pType === "iter:integer") {
             parts = pObj.command.split(":");
@@ -91,13 +98,15 @@ define(function (require, exports, module) {
                 line2 = "    {varname};\n",
                 line3 = "}";
 
-            var input_rewritten = ind + line1 + ind + line2 + ind + line3;
-            var a = input_rewritten.format({varname: varname, num_iterations: num_iterations});
-			var extent = pos.ch;
-            pos.ch = 0;
-            
-            currentDoc.replaceRange(a, pos, {line: pos.line, ch: extent});
+            input_template = ind + line1 + ind + line2 + ind + line3;
+            sanitized_parts = {varname: varname, num_iterations: num_iterations};
         }
+
+        // these are to be performed on all precursor objects
+        var cooked = input_template.format(sanitized_parts);
+        var extent = pos.ch;
+        pos.ch = 0;
+        currentDoc.replaceRange(cooked, pos, {line: pos.line, ch: extent});
 
     }
 
@@ -125,7 +134,7 @@ define(function (require, exports, module) {
             performRewrite(precursorType, precursorObj, pos);
         }
     }
-    
+
     // Keyboard shortcuts to "nudge" value up/down
     var CMD_RW_ID = "zeffii.rewriter.testLine";
     var FN_NAME = "Rewrite shortform";
