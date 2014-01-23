@@ -5,5 +5,5 @@ A simple tool to speed up writing for loops, and similar syntax heavy code const
 I've bound this to `ctrl+shift+[`  
 ![iternotator sublime addon, rewrites shorthand to longform](http://t.co/FVNkTg4EhK)
   
-*How is this achieves?*  
+*How is this achieved?*  
 Mostly through a cascade of Regex matching, if the content of a line doesn't match a first pattern it moves on to the next candidate, till it either finds a known valid precursor or establishes that no valid precursor was found on the line.
