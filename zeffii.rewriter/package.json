@@ -1,9 +1,0 @@
-{
-    "name": "zeffii.rewriter",
-    "title": "Rewriter",
-    "homepage": "https://github.com/zeffii",
-    "author": "Dealga McArdle",
-    "version": "0.0.1",
-    "engines": { "brackets": ">=0.33" },
-    "description": "Rewriter looks for recognized patterns on the current line and rewrites them to longform valid .js code"
-}

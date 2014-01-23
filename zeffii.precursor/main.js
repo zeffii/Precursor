@@ -183,7 +183,7 @@ define(function (require, exports, module) {
     }
 
     // Keyboard shortcuts to "nudge" value up/down
-    var CMD_RW_ID = "zeffii.rewriter.testLine";
+    var CMD_RW_ID = "zeffii.precursor.testLine";
     var FN_NAME = "Rewrite shortform";
 
     CommandManager.register(FN_NAME, CMD_RW_ID, testLine);
