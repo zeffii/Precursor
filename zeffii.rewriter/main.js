@@ -54,15 +54,15 @@ define(function (require, exports, module) {
         };
     }
 
-    function detectIndentationAndCommands(currentLine) {
+    function detectIndentationAndCommands(currentLine, pos) {
         // trim ends to help figure out the indentation level
         var precursor = currentLine.trimRight();
         var trimmed = precursor.trimLeft();
-        var precursor_object = {indent: "", command: trimmed};
+        var precursor_object = {indent: "", command: trimmed, pos: pos};
 
         if (precursor !== trimmed) {
             // if it gets to this point there is some leftside indentation
-            // it may be mixed, i don't care we consume.
+            // it may be mixed, i don't care - we consume anyway.
             var slice_index = precursor.indexOf(trimmed);
             var found_indent = precursor.substr(0, slice_index);
             precursor_object.indent = found_indent;
@@ -71,35 +71,76 @@ define(function (require, exports, module) {
     }
 
     function detectPrecursor(pObj) {
-        // dummy function implementation for testing
-        var cmds = pObj.command;
-        
-        return "iter:integer";
+        // set some defaults and prepare variables for use.
+        pObj.pType = false;
+        var cmds = pObj.command,
+            pattern,
+            res;
+
+        // test for i:iterable[] or i:iterable[
+        pattern = /(\S+:\w+)\[\]?/;
+        res = cmds.match(pattern);
+        if (res) {
+            pObj.pType = "iter:array";
+            pObj.matched = res[1];
+            return pObj;
+        }
+
+        pattern = /^(\S+:\w+)$/;
+        res = cmds.match(pattern);
+        if (res) {
+            pObj.pType = "iter:variable";
+            pObj.matched = res[1];
+            return pObj;
+        }
+
+        // return an object, no matter what. if unmatched in regex list
+        // .pType will be false as a guarantee.
+        return pObj;
     }
 
-    function performRewrite(pType, pObj, pos) {
+    function performRewrite(pObj) {
         /*  this function should only ever be called with a recognized pType
          *  so directly mapping pType to actions/rewrites can occur without
          *  much error checking.
          */
 
         var currentDoc = DocumentManager.getCurrentDocument(),
-            ind = pObj.indent,
-            parts,
+            input_template,
             sanitized_parts = {},
-            input_template;
+            ind = pObj.indent,
+            pos = pObj.pos,
+            pType = pObj.pType,
+            parts,
+            varname,
+            line1,
+            line2,
+            line3;
 
-        if (pType === "iter:integer") {
+        // both are acted upon in the same way
+        if (pType === "iter:integer" || pType === "iter:variable") {
             parts = pObj.command.split(":");
-            var varname = parts[0];
+            varname = parts[0];
             var num_iterations = parts[1];
 
-            var line1 = "for (var {varname} = 0; {varname} < {num_iterations}; {varname} += 1) {\n",
-                line2 = "    {varname};\n",
-                line3 = "}";
+            line1 = "for (var {varname} = 0; {varname} < {num_iterations}; {varname} += 1) {\n";
+            line2 = "    {varname};\n";
+            line3 = "}";
 
             input_template = ind + line1 + ind + line2 + ind + line3;
             sanitized_parts = {varname: varname, num_iterations: num_iterations};
+
+        } else if (pType === "iter:array") {
+            parts = pObj.matched.split(":");
+            varname = parts[0];
+            var iterable = parts[1];
+
+            line1 = "for (var {varname} = 0; {varname} < {iterable}.length; {varname} += 1) {\n";
+            line2 = "    {iterable}[{varname}];\n";
+            line3 = "}";
+
+            input_template = ind + line1 + ind + line2 + ind + line3;
+            sanitized_parts = {varname: varname, iterable: iterable};
         }
 
         // these are to be performed on all precursor objects
@@ -124,15 +165,21 @@ define(function (require, exports, module) {
 
         // return early if we have nothing to work with.
         if (lineText.trim().length === 0) {
-            console.log("Found no precursor on this line");
+            console.log("Found no content on this line");
             return;
         }
 
-        var precursorObj = detectIndentationAndCommands(lineText);
-        var precursorType = detectPrecursor(precursorObj);
-        if (precursorType !== false) {
-            performRewrite(precursorType, precursorObj, pos);
+        // The first function creates the pObj abd the second functions adds rewrite info to it.
+        var precursorObj = detectIndentationAndCommands(lineText, pos);
+        precursorObj = detectPrecursor(precursorObj);
+        
+        if (precursorObj.pType !== false) {
+            performRewrite(precursorObj);
+            return;
         }
+        
+        // reaching here is a last resort.
+        console.log("Found no precursor on this line, found:", lineText);
     }
 
     // Keyboard shortcuts to "nudge" value up/down
