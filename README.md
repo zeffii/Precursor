@@ -13,7 +13,7 @@ Mostly through a cascade of Regex matching, if the content of a line doesn't mat
 #### How to extend?
 An example .json is provided with the extension, it includes the two main regexes that I use to avoid writing for-loops. It unfortunately requires you to escape backslashed regex commands. This means if you need a `\S` you need to write `\\S`, the same applies to any other command that starts with a `\`, they are [listed here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FRegExp#Special_characters_in_regular_expressions).  
   
-Note: the current implementation trims the commands before passing them to the regex, therefor the regex is presented with a string that is conveniently matched with some level of condfidence using `^` and `$` at either end. Regexes are tested in the order of appearance in `prototyper.json`.
+Note: the current implementation trims the commands before passing them to the regex, therefor the regex is presented with a string that is conveniently matched with some level of confidence using `^` and `$` at either end. Regexes are tested in the order of appearance in `prototyper.json`.
 ```json
 {
     "patterns": [
