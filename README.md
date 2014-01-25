@@ -41,6 +41,6 @@ Note: the current implementation trims the commands before passing them to the r
 
 ```
 
-*Testing*
-You should test if the addition you make to the `prototyper.json` results in a valid json file before attempting to run the extention with your updated .json. Use something like [jsonlint.com](http://jsonlint.com/) if you aren't sure.
+*Testing*  
+You should test if the addition you make to the `prototyper.json` results in a valid json file before attempting to run the extension. Use something like [jsonlint.com](http://jsonlint.com/) if you aren't sure.
 
