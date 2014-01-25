@@ -28,6 +28,22 @@ define(function (require, exports, module) {
 
     console.log("Precursor Active!");
 
+    // var ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
+    // var path = ExtensionUtils.getModulePath(module);
+
+    var support_dir = brackets.app.getApplicationSupportDirectory(),
+        precursor_path,
+        precursor_file = "prototyper.json",
+        def_indent = "    ";
+
+    support_dir += "/extensions/user/zeffii.precursor/";
+    precursor_path = support_dir + precursor_file;
+
+    var prototypes;
+    $.getJSON(precursor_path, function (data) {
+        prototypes = data;
+    });
+
     // Brackets modules
     var EditorManager     = brackets.getModule("editor/EditorManager"),
         InlineTextEditor  = brackets.getModule("editor/InlineTextEditor").InlineTextEditor,
@@ -58,100 +74,89 @@ define(function (require, exports, module) {
         // trim ends to help figure out the indentation level
         var precursor = currentLine.trimRight();
         var trimmed = precursor.trimLeft();
-        var precursor_object = {indent: "", command: trimmed, pos: pos};
+        var precursor_object = {current_indent: "", command: trimmed, pos: pos, indent: def_indent};
 
         if (precursor !== trimmed) {
             // if it gets to this point there is some leftside indentation
             // it may be mixed, i don't care - we consume anyway.
             var slice_index = precursor.indexOf(trimmed);
             var found_indent = precursor.substr(0, slice_index);
-            precursor_object.indent = found_indent;
+            precursor_object.current_indent = found_indent;
         }
         return precursor_object;
     }
 
-    function detectPrecursor(pObj) {
-        // set some defaults and prepare variables for use.
-        pObj.pType = false;
-        var cmds = pObj.command,
-            pattern,
-            res;
 
-        // test for i:iterable[] or i:iterable[
-        pattern = /(\S+:\w+)\[\]?/;
-        res = cmds.match(pattern);
-        if (res) {
-            pObj.pType = "iter:array";
-            pObj.matched = res[1];
-            return pObj;
-        }
-
-        pattern = /^(\S+:\w+)$/;
-        res = cmds.match(pattern);
-        if (res) {
-            pObj.pType = "iter:variable";
-            pObj.matched = res[1];
-            return pObj;
-        }
-
-        // return an object, no matter what. if unmatched in regex list
-        // .pType will be false as a guarantee.
-        return pObj;
-    }
-
-    function performRewrite(pObj) {
-        /*  this function should only ever be called with a recognized pType
-         *  so directly mapping pType to actions/rewrites can occur without
-         *  much error checking.
-         */
-
+    function performRewrite(pmatches, lines, pObj) {
         var currentDoc = DocumentManager.getCurrentDocument(),
-            input_template,
-            sanitized_parts = {},
             ind = pObj.indent,
+            c_ind = pObj.current_indent,
             pos = pObj.pos,
-            pType = pObj.pType,
-            parts,
-            varname,
-            line1,
-            line2,
-            line3;
+            cooked,
+            extent,
+            input_template = "",
+            line_id,
+            line,
+            newline = "\n";
 
-        // both are acted upon in the same way
-        if (pType === "iter:integer" || pType === "iter:variable") {
-            parts = pObj.command.split(":");
-            varname = parts[0];
-            var num_iterations = parts[1];
+        pmatches.indent = ind;
 
-            line1 = "for (var {varname} = 0; {varname} < {num_iterations}; {varname} += 1) {\n";
-            line2 = "    {varname};\n";
-            line3 = "}";
-
-            input_template = ind + line1 + ind + line2 + ind + line3;
-            sanitized_parts = {varname: varname, num_iterations: num_iterations};
-
-        } else if (pType === "iter:array") {
-            parts = pObj.matched.split(":");
-            varname = parts[0];
-            var iterable = parts[1];
-
-            line1 = "for (var {varname} = 0; {varname} < {iterable}.length; {varname} += 1) {\n";
-            line2 = "    {iterable}[{varname}];\n";
-            line3 = "}";
-
-            input_template = ind + line1 + ind + line2 + ind + line3;
-            sanitized_parts = {varname: varname, iterable: iterable};
+        for (line_id = 0; line_id < lines.length; line_id += 1) {
+            line = lines[line_id];
+            input_template += (c_ind + line + newline);
         }
 
-        // these are to be performed on all precursor objects
-        var cooked = input_template.format(sanitized_parts);
-        var extent = pos.ch;
+        cooked = input_template.format(pmatches);
+        extent = pos.ch;
         pos.ch = 0;
         currentDoc.replaceRange(cooked, pos, {line: pos.line, ch: extent});
 
     }
 
+    function attemptRewrite(pObj) {
+
+        var key,
+            plines,
+            pregex,
+            res,
+            num_atoms,
+            pmatches = {},
+            RE,
+            i = 0,
+            patterns = prototypes.patterns;
+
+        for (key in patterns) {
+            if (patterns.hasOwnProperty(key)) {
+
+                pregex = patterns[key].pattern_regex;
+                console.log("trying:", pregex);
+                RE = new RegExp(pregex);
+                res = RE.exec(pObj.command);
+
+                console.log(res);
+
+                if (res) {
+                    console.log(patterns[key].pattern_name);
+
+                    num_atoms = res.length - 1;
+                    for (i = 0; i < num_atoms; i += 1) {
+                        pmatches[i] = res[i + 1];
+                    }
+                    console.log(pmatches);
+                    plines = patterns[key].lines;
+                    performRewrite(pmatches, plines, pObj);
+                    return;
+                }
+            }
+
+        }
+    }
+
+
+
     function testLine() {
+        console.log(prototypes);
+
         var editor = EditorManager.getActiveEditor();
 
         if (!editor) {
@@ -171,15 +176,11 @@ define(function (require, exports, module) {
 
         // The first function creates the pObj abd the second functions adds rewrite info to it.
         var precursorObj = detectIndentationAndCommands(lineText, pos);
-        precursorObj = detectPrecursor(precursorObj);
-        
-        if (precursorObj.pType !== false) {
-            performRewrite(precursorObj);
-            return;
+        var success = attemptRewrite(precursorObj);
+
+        if (success === false) {
+            console.log("Found no precursor on this line, found:", lineText);
         }
-        
-        // reaching here is a last resort.
-        console.log("Found no precursor on this line, found:", lineText);
     }
 
     // Keyboard shortcuts to "nudge" value up/down

@@ -1,0 +1,22 @@
+{
+    "patterns": [
+        {
+            "pattern_name": "varname:iterations",
+            "pattern_regex": "^(\\S+):(\\w+)$",
+            "lines": [
+                "for (var {0} = 0; {0} < {1}; {0} += 1) {",
+                "{indent}{0};",
+                "}"
+            ]
+        },
+        {
+            "pattern_name": "varname:iterable",
+            "pattern_regex": "^(\\S+):(\\w+)\\[\\]?$",
+            "lines": [
+                "for (var {0} = 0; {0} < {1}.length; {0} += 1) {",
+                "{indent}{1}[{0}];",
+                "}"
+            ]
+        }
+    ]
+}
