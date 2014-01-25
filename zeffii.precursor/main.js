@@ -28,18 +28,15 @@ define(function (require, exports, module) {
 
     console.log("Precursor Active!");
 
-    // var ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
-    // var path = ExtensionUtils.getModulePath(module);
-
-    var support_dir = brackets.app.getApplicationSupportDirectory(),
+    var ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
+        path = ExtensionUtils.getModulePath(module),
         precursor_path,
         precursor_file = "prototyper.json",
-        def_indent = "    ";
+        def_indent = "    ",
+        prototypes;
 
-    support_dir += "/extensions/user/zeffii.precursor/";
-    precursor_path = support_dir + precursor_file;
+    precursor_path = path + precursor_file;
 
-    var prototypes;
     $.getJSON(precursor_path, function (data) {
         prototypes = data;
     });
