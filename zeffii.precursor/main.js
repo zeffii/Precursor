@@ -126,33 +126,35 @@ define(function (require, exports, module) {
             if (patterns.hasOwnProperty(key)) {
 
                 pregex = patterns[key].pattern_regex;
-                console.log("trying:", pregex);
+                // console.log("trying:", pregex);
                 RE = new RegExp(pregex);
                 res = RE.exec(pObj.command);
 
-                console.log(res);
+                // console.log(res);
 
                 if (res) {
-                    console.log(patterns[key].pattern_name);
+                    console.log("matched:", patterns[key].pattern_name);
 
                     num_atoms = res.length - 1;
                     for (i = 0; i < num_atoms; i += 1) {
                         pmatches[i] = res[i + 1];
                     }
-                    console.log(pmatches);
+                    // console.log(pmatches);
                     plines = patterns[key].lines;
                     performRewrite(pmatches, plines, pObj);
-                    return;
+                    
+                    return true;
                 }
             }
 
         }
+        return false;
     }
 
 
 
     function testLine() {
-        console.log(prototypes);
+        // console.log(prototypes);
 
         var editor = EditorManager.getActiveEditor();
 
@@ -160,11 +162,17 @@ define(function (require, exports, module) {
             return;
         }
 
+        
         // rewriter "precursor" patterns should only ever be on one line, alone.
         // this means we can make some brutal assumptions and log input failures.
         var pos = editor.getCursorPos();
         var lineText = editor.document.getLine(pos.line);
-
+        
+        // it's necessary place the cursor at the end of the line before proceeding
+        // not sure how to do this neatly.
+        editor.setCursorPos({line: pos.line, ch: lineText.length});
+		pos = editor.getCursorPos();
+        
         // return early if we have nothing to work with.
         if (lineText.trim().length === 0) {
             console.log("Found no content on this line");
