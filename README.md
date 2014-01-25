@@ -8,7 +8,10 @@ I've bound this to `ctrl+shift+[`
 
   
 #### How is this achieved?
-Mostly through a cascade of Regex matching, if the content of a line doesn't match a first pattern it moves on to the next candidate, till it either finds a known valid precursor or establishes that no valid precursor was found on the line. In this case the line can be rewritten from shorthand to longform    
+Mostly through a cascade of Regex matching, if the content of a line doesn't match a first pattern it moves on to the next candidate, till a match is found. In this case the line can be rewritten from shorthand to longform. In the case of no matches, there are a few potential reasons:  
+
+- the regex should be move up in the `prototyper.json` because likely some other regex is catching the content of the line.
+- the regex is not valid for the content of the line.
 
 
 #### How to extend?
