@@ -8,7 +8,7 @@ I've bound this to `ctrl+shift+[`
 
   
 #### How is this achieved?
-Mostly through a cascade of Regex matching, if the content of a line doesn't match a first pattern it moves on to the next candidate, till a match is found. In this case the line can be rewritten from shorthand to longform. 
+Mostly through a cascade of Regex matching, if the content of a line doesn't match a first pattern it moves on to the next candidate, till a match is found. In this case the line can be rewritten from shorthand to longform. The current level of indentation is detected and used to make sure the rewrite happens where expected.  
 
 #### How to extend?
 An example .json is provided with the extension, it includes the two main regexs that I use to avoid writing for-loops. It unfortunately requires you to escape backslashed regex commands. This means if you need a `\S` you need to write `\\S`, the same applies to any other command that starts with a `\`, they are [listed here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FRegExp#Special_characters_in_regular_expressions).  
@@ -50,9 +50,8 @@ In the case of no matches, there are a few potential reasons:
 
 - the regex should be moved up in the `prototyper.json` because likely some other regex is catching the content of the line before it reaches the intended regex.
 - the regex is not valid for the content of the line.
-- The regex is passed a trimmed version of the line you initiate the command on. Using `^` and `$` at either end of your regex will give more clarity to the pattern to be matched. 
+- The regex is passed a trimmed version of the line you initiate the command on. Using `^` and `$` at either end of your regex will help you declare an unambiguous pattern. 
   
-The current level of indentation is detected and used to make sure the rewrite happens where expected.  
 
 #### Comments?
 Please use the issue tracker, I'll respond when time permits.
