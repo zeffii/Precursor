@@ -1,5 +1,5 @@
 ### Precursor for Brackets
-A simple tool to speed up writing for loops, and similar syntax heavy code constructs, that can be described in a more concise way. It only takes a small amount of information to describe what you want, but for the javascript engine to understand you extra syntax is required.
+A simple tool to speed up writing for loops, and similar syntax heavy code constructs, that can be described in a more concise way. It only takes a small amount of information to describe what you want, but for the JavaScript engine to understand you extra syntax is required.
 
   
 #### What to expect
@@ -13,7 +13,7 @@ Mostly through a cascade of Regex matching, if the content of a line doesn't mat
 #### How to extend?
 An example .json is provided with the extension, it includes the two main regexes that I use to avoid writing for-loops. It unfortunately requires you to escape backslashed regex commands. This means if you need a `\S` you need to write `\\S`, the same applies to any other command that starts with a `\`, they are [listed here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FRegExp#Special_characters_in_regular_expressions).  
   
-Note: the current implementation trims the commands before passing them to the regex, therefor the regex is presented with a string that is conveniently matched with some level of confidence using `^` and `$` at either end. Regexes are tested in the order of appearance in `prototyper.json`.
+Note: the current implementation trims the commands before passing them to the regex, therefore the regex is presented with a string that is conveniently matched with some level of confidence using `^` and `$` at either end. Regexes are tested in the order of appearance in `prototyper.json`.
 ```json
 {
     "patterns": [
@@ -54,4 +54,4 @@ In the case of no matches, there are a few potential reasons:
 The current level of indentation is detected and used to make sure the rewrite happens where expected.  
 
 #### Comments?
-Please use the issue tracker, i'll respond when time permits.
+Please use the issue tracker, I'll respond when time permits.
