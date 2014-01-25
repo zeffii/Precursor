@@ -4,16 +4,16 @@ A simple tool to speed up writing for loops, and similar syntax heavy code const
   
 #### What to expect
 I've bound this to `ctrl+shift+[`  
-![iternotator sublime addon, rewrites shorthand to longform](http://t.co/FVNkTg4EhK)
+![rewrites shorthand to longform](http://t.co/FVNkTg4EhK)
 
   
 #### How is this achieved?
 Mostly through a cascade of Regex matching, if the content of a line doesn't match a first pattern it moves on to the next candidate, till a match is found. In this case the line can be rewritten from shorthand to longform. 
 
 #### How to extend?
-An example .json is provided with the extension, it includes the two main regexes that I use to avoid writing for-loops. It unfortunately requires you to escape backslashed regex commands. This means if you need a `\S` you need to write `\\S`, the same applies to any other command that starts with a `\`, they are [listed here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FRegExp#Special_characters_in_regular_expressions).  
-  
-Note: the current implementation trims the commands before passing them to the regex, therefore the regex is presented with a string that is conveniently matched with some level of confidence using `^` and `$` at either end. Regexes are tested in the order of appearance in `prototyper.json`.
+An example .json is provided with the extension, it includes the two main regexs that I use to avoid writing for-loops. It unfortunately requires you to escape backslashed regex commands. This means if you need a `\S` you need to write `\\S`, the same applies to any other command that starts with a `\`, they are [listed here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FRegExp#Special_characters_in_regular_expressions).  
+    
+Regexs are tested in the order of appearance in `prototyper.json`, think of this as their order of precedence.
 ```json
 {
     "patterns": [
@@ -48,8 +48,9 @@ The regex will contain at least one match group `( )`, but shouldn't use nested 
 
 In the case of no matches, there are a few potential reasons:  
 
-- the regex should be move up in the `prototyper.json` because likely some other regex is catching the content of the line.
+- the regex should be moved up in the `prototyper.json` because likely some other regex is catching the content of the line before it reaches the intended regex.
 - the regex is not valid for the content of the line.
+- The regex is passed a trimmed version of the line you initiate the command on. Using `^` and `$` at either end of your regex will give more clarity to the pattern to be matched. 
   
 The current level of indentation is detected and used to make sure the rewrite happens where expected.  
 
