@@ -83,7 +83,6 @@ define(function (require, exports, module) {
         return precursor_object;
     }
 
-
     function performRewrite(pmatches, lines, pObj) {
         var currentDoc = DocumentManager.getCurrentDocument(),
             ind = pObj.indent,
@@ -151,17 +150,13 @@ define(function (require, exports, module) {
         return false;
     }
 
-
-
     function testLine() {
-        // console.log(prototypes);
 
         var editor = EditorManager.getActiveEditor();
 
         if (!editor) {
             return;
         }
-
         
         // rewriter "precursor" patterns should only ever be on one line, alone.
         // this means we can make some brutal assumptions and log input failures.
@@ -188,7 +183,6 @@ define(function (require, exports, module) {
         }
     }
 
-    // Keyboard shortcuts to "nudge" value up/down
     var CMD_RW_ID = "zeffii.precursor.testLine";
     var FN_NAME = "Rewrite shortform";
 
