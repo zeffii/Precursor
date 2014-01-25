@@ -44,7 +44,7 @@ Note: the current implementation trims the commands before passing them to the r
 You should test if the addition you make to the `prototyper.json` results in a valid json file before attempting to run the extension. Use something like [jsonlint.com](http://jsonlint.com/) if you aren't sure.
 
 #### Possible issues
-The regex will contain at least one match group `( )`, but shouldn't use nested matches. Each set of `( )` will correspond to their numbered counterpart in the `line` property of the pattern. For example `^(\\S+):(\\w+)$` will match 2 parts of the input string, the can be accessed for the rewrite by using `{0}` and `{1}`.  
+The regex will contain at least one match group `( )`, but shouldn't use nested matches. Each set of `( )` will correspond to their numbered counterpart in the `line` property of the pattern. For example `^(\\S+):(\\w+)$` will match 2 parts of the input string, they can be accessed for the rewrite by using `{0}` and `{1}`.  
 
 In the case of no matches, there are a few potential reasons:  
 
