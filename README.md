@@ -8,12 +8,7 @@ I've bound this to `ctrl+shift+[`
 
   
 #### How is this achieved?
-Mostly through a cascade of Regex matching, if the content of a line doesn't match a first pattern it moves on to the next candidate, till a match is found. In this case the line can be rewritten from shorthand to longform. In the case of no matches, there are a few potential reasons:  
-
-- the regex should be move up in the `prototyper.json` because likely some other regex is catching the content of the line.
-- the regex is not valid for the content of the line.
-  
-The current level of indentation is detected and used to make sure the rewrite happens where expected.  
+Mostly through a cascade of Regex matching, if the content of a line doesn't match a first pattern it moves on to the next candidate, till a match is found. In this case the line can be rewritten from shorthand to longform. 
 
 #### How to extend?
 An example .json is provided with the extension, it includes the two main regexes that I use to avoid writing for-loops. It unfortunately requires you to escape backslashed regex commands. This means if you need a `\S` you need to write `\\S`, the same applies to any other command that starts with a `\`, they are [listed here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FRegExp#Special_characters_in_regular_expressions).  
@@ -48,3 +43,15 @@ Note: the current implementation trims the commands before passing them to the r
 #### Testing
 You should test if the addition you make to the `prototyper.json` results in a valid json file before attempting to run the extension. Use something like [jsonlint.com](http://jsonlint.com/) if you aren't sure.
 
+#### Possible issues
+The regex will contain at least one match group `( )`, but shouldn't use nested matches. Each set of `( )` will correspond to their numbered counterpart in the `line` property of the pattern. For example `^(\\S+):(\\w+)$` will match 2 parts of the input string, the can be accessed for the rewrite by using `{0}` and `{1}`.  
+
+In the case of no matches, there are a few potential reasons:  
+
+- the regex should be move up in the `prototyper.json` because likely some other regex is catching the content of the line.
+- the regex is not valid for the content of the line.
+  
+The current level of indentation is detected and used to make sure the rewrite happens where expected.  
+
+#### Comments?
+Please use the issue tracker, i'll respond when time permits.
