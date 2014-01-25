@@ -168,7 +168,7 @@ define(function (require, exports, module) {
         var pos = editor.getCursorPos();
         var lineText = editor.document.getLine(pos.line);
         
-        // it's necessary place the cursor at the end of the line before proceeding
+        // it's necessary to place the cursor at the end of the line before proceeding
         // not sure how to do this neatly.
         editor.setCursorPos({line: pos.line, ch: lineText.length});
 		pos = editor.getCursorPos();
