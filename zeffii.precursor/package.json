@@ -3,7 +3,7 @@
     "title": "Precursor",
     "homepage": "https://github.com/zeffii/Precursor/",
     "author": "Dealga McArdle",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "engines": { "brackets": ">=0.33" },
     "description": "Precursor looks for recognized patterns on the current line and rewrites them to longform valid .js code"
 }
