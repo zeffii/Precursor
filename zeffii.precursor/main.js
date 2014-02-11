@@ -99,7 +99,11 @@ define(function (require, exports, module) {
 
         for (line_id = 0; line_id < lines.length; line_id += 1) {
             line = lines[line_id];
-            input_template += (c_ind + line + newline);
+            if (line_id + 1 < lines.length) {
+                input_template += (c_ind + line + newline);
+            } else {
+                input_template += (c_ind + line);
+            }
         }
 
         cooked = input_template.format(pmatches);
