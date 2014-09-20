@@ -111,19 +111,19 @@ define(function (require, exports, module) {
         }
 
 	for (var i = 0; i < lines.length; i++) {
-	    cursorPos.offset = lines[s].indexOf('{cursor}');
+	    cursorPos.offset = lines[i].indexOf('{cursor}');
 	    if (cursorPos.offset >= 0) {
-		cursorPos.line = pos.line + i;
-		break;
-            }
+			cursorPos.line = pos.line + i;
+			break;
+        }
 	}
 	
         cooked = input_template.format(pmatches);
         extent = pos.ch;
         pos.ch = 0;
         currentDoc.replaceRange(cooked, pos, {line: pos.line, ch: extent});
-        //set cursor
-        editor._codeMirror.setCursor(cursorPos.line, cursorPos.offset);
+        //set cursor if it was specified
+		if(cursorPos.line) editor._codeMirror.setCursor(cursorPos.line, cursorPos.offset);
     }
 
     function attemptRewrite(pObj) {
