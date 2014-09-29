@@ -6,6 +6,8 @@ A simple tool to speed up writing for loops, and similar syntax heavy code const
 I've bound this to `ctrl+shift+[`  
 ![rewrites shorthand to longform](http://t.co/FVNkTg4EhK)
 
+#### But this is a little like snippets, surely?
+Precursor is to code what stenography is to reporting. Precursor and Snippets aim to achieve the same end goal, each using a different interaction paradigm.
   
 #### How is this achieved?
 Mostly through a cascade of Regex matching, if the content of a line doesn't match a first pattern it moves on to the next candidate, till a match is found. In this case the line can be rewritten from shorthand to longform. The current level of indentation is detected and used to make sure the rewrite happens where expected.  
@@ -55,3 +57,4 @@ In the case of no matches, there are a few potential reasons:
 
 #### Comments?
 Please use the issue tracker, I'll respond when time permits.
+
