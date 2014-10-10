@@ -85,9 +85,11 @@ define(function (require, exports, module) {
 
     function performRewrite(pmatches, lines, pObj) {
         var currentDoc = DocumentManager.getCurrentDocument(),
+            editor = EditorManager.getCurrentFullEditor(),
             ind = pObj.indent,
             c_ind = pObj.current_indent,
             pos = pObj.pos,
+            cursorPos = {},
             cooked,
             extent,
             input_template = "",
@@ -96,6 +98,8 @@ define(function (require, exports, module) {
             newline = "\n";
 
         pmatches.indent = ind;
+        //replace {cursor} with empty string
+        pmatches.cursor = "";
 
         for (line_id = 0; line_id < lines.length; line_id += 1) {
             line = lines[line_id];
@@ -106,11 +110,20 @@ define(function (require, exports, module) {
             }
         }
 
+	for (var i = 0; i < lines.length; i++) {
+	    cursorPos.offset = lines[i].indexOf('{cursor}');
+	    if (cursorPos.offset >= 0) {
+			cursorPos.line = pos.line + i;
+			break;
+        }
+	}
+	
         cooked = input_template.format(pmatches);
         extent = pos.ch;
         pos.ch = 0;
         currentDoc.replaceRange(cooked, pos, {line: pos.line, ch: extent});
-
+        //set cursor if it was specified
+		if(cursorPos.line) editor._codeMirror.setCursor(cursorPos.line, cursorPos.offset);
     }
 
     function attemptRewrite(pObj) {
